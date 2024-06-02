@@ -8,7 +8,7 @@ const InputError = require('../exceptions/InputError');
 (async () => {
     const server = Hapi.server({
         port: 3000,
-        host: '0.0.0.0',
+        host: 'localhost',
         routes: {
             cors: {
               origin: ['*'],
@@ -28,7 +28,7 @@ const InputError = require('../exceptions/InputError');
             const newResponse = h.response({
                 statusCode: 400,
                 status: 'fail',
-                message: 'Terjadi kesalahan dalam melakukan prediksi'
+                message: 'Something is wrong !'
             })
             newResponse.code(400)
             return newResponse;
