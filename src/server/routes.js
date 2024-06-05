@@ -1,10 +1,10 @@
-const postPredictHandler = require('./handler');
+const savingPredictHandler = require('./handler');
  
 const routes = [
   {
-    path: '/predict',
+    path: '/saving-predict',
     method: 'POST',
-    handler: postPredictHandler,
+    handler: savingPredictHandler,
   }
 ]
  
