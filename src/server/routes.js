@@ -1,4 +1,4 @@
-const { savingPredictHandler, firebaseAuthHandler, HelloWorld } = require('./handler');
+const { savingPredictHandler, firebaseSignUpHandler, firebaseLogInHandler, HelloWorld, logOuthandler } = require('./handler');
  
 const routes = [
   {
@@ -9,13 +9,23 @@ const routes = [
   {
     path: '/signup',
     method: 'POST',
-    handler : firebaseAuthHandler
+    handler : firebaseSignUpHandler
+  },
+  {
+    path: '/login',
+    method: 'POST',
+    handler: firebaseLogInHandler
   },
   {
     method: 'GET',
-    path: '/',
+    path: `/logged/{email}`,
     handler: HelloWorld
-}
+  },
+  {
+    path: '/logout',
+    method : 'POST',
+    handler: logOuthandler
+  }
 ];
  
 module.exports = routes;
