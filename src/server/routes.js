@@ -1,10 +1,15 @@
-const { savingPredictHandler, firebaseSignUpHandler, firebaseLogInHandler, HelloWorld, logOuthandler } = require('./handler');
+const { savingPredictHandler, firebaseSignUpHandler, firebaseLogInHandler, HelloWorld, logOuthandler, historyHandler } = require('./handler');
  
 const routes = [
   {
     path: '/predict',
     method: 'POST',
     handler: savingPredictHandler
+  },
+  {
+    path: '/history/{name}',
+    method: 'GET',
+    handler: historyHandler
   },
   {
     path: '/signup',
