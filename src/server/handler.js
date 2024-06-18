@@ -1,38 +1,8 @@
-const predictSavings = require('../services/inferenceService');
-const crypto = require('crypto');
 const storeData = require('../services/storeData');
 const readData = require('../services/readData');
-const { input } = require('@tensorflow/tfjs-node');
+const axios = require('axios');
 const { initializeApp } = require("firebase/app");
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } = require("firebase/auth");
-
-// async function postPredictHandler(request, h) {
-//     const { input } = request.payload;
-//     const { model } = request.server.app;
-
-//     const { confidenceScore, label, suggestion } = await predictClassification(model, input);
-//     const id = crypto.randomUUID();
-//     const createdAt = new Date().toISOString();
-
-//     const data = {
-//         "id": id,
-//         "result": label,
-//         "suggestion": suggestion,
-//         "confidenceScore": confidenceScore,
-//         "createdAt": createdAt
-//     }
-
-//     await storeData(id, data);
-
-//     const response = h.response({
-//         status: 'success',
-//         message: 'Model is predicted successfully',
-//         data
-//       })
-//       response.code(201);
-//       return response;
-
-// }
 
 async function savingPredictHandler(request, h) {
     const firebaseConfig = {
@@ -48,36 +18,42 @@ async function savingPredictHandler(request, h) {
     const auth = getAuth(app);
     const user = auth.currentUser;
 
-    const { userInput: {
-        income, expense, saving, savingName
-    } } = request.payload;
-    const { model } = request.server.app;
-
-    const { result } = await predictSavings(model, income, expense, saving);
-    // const id = crypto.randomUUID();
+    const { income, expense, saving, savingName } = request.payload;
     const createdAt = new Date().toISOString();
 
-    const data = {
-        "email": user.email,
-        "savingName": savingName,
-        "result": result,
-        "createdAt": createdAt
+    const dataForPrediction = {
+        "monthly_income": income,
+        "monthly_expenses": expense,
+        "savings_goal": saving
+    };
+
+    try{
+        const predictionResponse = await axios.post(process.env.MODEL_URL, dataForPrediction);
+        const result = predictionResponse.data;
+        
+        const data = {
+            "email": user.email,
+            "savingName": savingName,
+            "result": result,
+            "createdAt": createdAt
+        }
+
+        await storeData(user.email, savingName, data);
+    
+        const response = h.response({
+            status: 'success',
+            message: 'Model is predicted successfully',
+            data
+        })
+        response.code(201);
+        return response;
     }
-
-    await storeData(user.email, savingName, data);
-
-    const response = h.response({
-        status: 'success',
-        message: 'Model is predicted successfully',
-        data
-    })
-    response.code(201);
-    return response;
-
+    catch(error){
+        throw new InputError();
+    }
 }
 
 async function historyHandler(request, h){
-    const { savingName } = request.payload;
     const firebaseConfig = {
         apiKey: process.env.FIREBASE_API_KEY,
         authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -91,7 +67,7 @@ async function historyHandler(request, h){
     const auth = getAuth(app);
     const user = auth.currentUser;
 
-    const data = await readData(user.email, savingName);
+    const data = await readData(user.email);
 
     const response = h.response({
         status: 'success',

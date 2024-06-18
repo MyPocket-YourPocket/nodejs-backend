@@ -7,7 +7,7 @@ const routes = [
     handler: savingPredictHandler
   },
   {
-    path: '/history/{name}',
+    path: '/history',
     method: 'GET',
     handler: historyHandler
   },

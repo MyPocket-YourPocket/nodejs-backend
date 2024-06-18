@@ -1,17 +1,18 @@
 const { Firestore } = require('@google-cloud/firestore');
 
-async function readData(email, savingName) {
+async function readData(email/*, savingName*/) {
   const db = new Firestore();
 
-  const predictCollection = db.collection(`${email}`);
-  const docRef = predictCollection.doc(savingName);
-  const doc = await docRef.get();
+  const snapshot = await db.collection(`${email}`).get();
+  // const docRef = predictCollection.doc(savingName);
+  // const doc = await predictCollection.get();
 
-  if (doc.exists) {
-    return doc.data();
+  if (!snapshot.empty) {
+    const doc = snapshot.docs.map(doc => doc.data());
+    return doc;
   } else {
     console.log('Document not found!');
-    return null;
+    return [];
   }
 }
 
